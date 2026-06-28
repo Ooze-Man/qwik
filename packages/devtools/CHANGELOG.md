@@ -1,5 +1,30 @@
 # @qwik.dev/devtools
 
+## 0.3.0-beta.2
+
+### Patch Changes
+
+- refactor(devtools): single source of truth for shared protocol types (by [@Aejkatappaja](https://github.com/Aejkatappaja) in [#8712](https://github.com/QwikDev/qwik/pull/8712))
+
+  The VNode tree node, component detail entry, and render event shapes were declared
+  three times: in the browser extension, in the devtools UI, and in the kit client
+  bridge. They now live once in @qwik.dev/devtools/kit (protocol module) as
+  DevtoolsVNodeTreeNode, DevtoolsComponentDetailEntry, and DevtoolsRenderEvent, and
+  every consumer imports them from there.
+
+- refactor(devtools): generate the extension VNode bridge from one shared source (by [@Aejkatappaja](https://github.com/Aejkatappaja) in [#8713](https://github.com/QwikDev/qwik/pull/8713))
+
+  The browser extension's `public/vnode-bridge.js` duplicated the VNode bridge logic
+  (tree building, prop serialization, name normalization, DOM resolution, highlighting,
+  component tree update posting) that the Vite plugin already owns via
+  `__qwik_install_vnode_runtime__` / `createVNodeRuntime()`. It is now generated from
+  that single canonical source by the extension build (alongside `devtools-hook.js`)
+  and is no longer committed.
+
+- Updated dependencies [[`e28ae7c`](https://github.com/QwikDev/qwik/commit/e28ae7cf6f42b15b3bb17986c1cd7d7ffd91adee), [`cf7776a`](https://github.com/QwikDev/qwik/commit/cf7776afd13679095e1d9e0fc51f0d56067d8746), [`2914d2c`](https://github.com/QwikDev/qwik/commit/2914d2c9f20622547008dc21926ddc059bb77447), [`bc0b970`](https://github.com/QwikDev/qwik/commit/bc0b9708e318d5dc0fa5358cc62ebc306b862c36), [`418fed6`](https://github.com/QwikDev/qwik/commit/418fed6fc2c2d9ac4147d3a4120c6892181a83a2), [`c950f02`](https://github.com/QwikDev/qwik/commit/c950f0273fe61240b444cd840b3c81569ea3e9b6), [`e3f60bf`](https://github.com/QwikDev/qwik/commit/e3f60bfcb26ff9ae3e2981ffefe7b1b4fa28b273), [`108fb66`](https://github.com/QwikDev/qwik/commit/108fb66378bc0e188aeb51d11bd43da73e888bcd), [`8435e7a`](https://github.com/QwikDev/qwik/commit/8435e7a652f757409deb4ea5b56070449870390b), [`12387da`](https://github.com/QwikDev/qwik/commit/12387daadac9e4500d3ecd30337cfe6efa1d2958), [`7f31459`](https://github.com/QwikDev/qwik/commit/7f314598e3389b0eb28d5f97b8d61bba3cdf3be8), [`d6f1572`](https://github.com/QwikDev/qwik/commit/d6f157205122e8ef2277951a5bf3ede038e1e9b8), [`a9d240c`](https://github.com/QwikDev/qwik/commit/a9d240cea2228bf992a0981352b086dd5064caa6), [`9c9f0ad`](https://github.com/QwikDev/qwik/commit/9c9f0ad440c516a3d1fc5c1c32c0eb7cf13feab4), [`8586792`](https://github.com/QwikDev/qwik/commit/8586792a00bd384c02c7f2da6f67f9440fd5fcdd), [`ee013ae`](https://github.com/QwikDev/qwik/commit/ee013ae349671a7801e29efbcce248c026cb949f), [`f0c0bde`](https://github.com/QwikDev/qwik/commit/f0c0bde7433d85a7d19bdac967c52d2af8784c1c), [`8a3c346`](https://github.com/QwikDev/qwik/commit/8a3c346cf8ac031358030ea159e19a155366f646), [`8fc5762`](https://github.com/QwikDev/qwik/commit/8fc576269a4c3fb77026bcbdf589f2cdc329ee9c), [`fd9f197`](https://github.com/QwikDev/qwik/commit/fd9f197c2774fbad8adb2b007dfa46a0b4698533), [`abaae23`](https://github.com/QwikDev/qwik/commit/abaae232518707219a69e1247a6400cf569f5dd7), [`15ea2d8`](https://github.com/QwikDev/qwik/commit/15ea2d88f0cae45e81f5b1dea231b5f7349da28d)]:
+  - @qwik.dev/core@2.0.0-beta.38
+  - @qwik.dev/router@2.0.0-beta.38
+
 ## 0.3.0-beta.1
 
 ### Patch Changes
