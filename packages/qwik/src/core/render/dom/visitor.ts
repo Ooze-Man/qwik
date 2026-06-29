@@ -508,6 +508,42 @@ export const diffVnode = (
   return smartUpdateChildren(rCtx, oldVnode, newVnode, flags);
 };
 
+const containsComponentVNode = (vnode: ProcessedJSXNode): boolean => {
+  if (vnode.$type$ === VIRTUAL && OnRenderProp in vnode.$props$) {
+    return true;
+  }
+
+  const children = vnode.$children$;
+  for (let i = 0; i < children.length; i++) {
+    if (containsComponentVNode(children[i])) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const shouldDeferProjection = (
+  slotMaps: SlotMaps,
+  slotName: string,
+  newVdom: ProcessedJSXNode
+): boolean => {
+  return !slotMaps.slots[slotName] && containsComponentVNode(newVdom);
+};
+
+const removeParkedTemplate = (
+  staticCtx: RenderStaticContext,
+  slotMaps: SlotMaps,
+  slotName: string
+): void => {
+  const templateEl = slotMaps.templates[slotName];
+
+  if (templateEl) {
+    slotMaps.templates[slotName] = undefined;
+    removeNode(staticCtx, templateEl);
+  }
+};
+
 const renderContentProjection = (
   rCtx: RenderContext,
   hostCtx: QContext,
@@ -551,6 +587,12 @@ const renderContentProjection = (
   return promiseAll(
     Object.keys(splittedNewChildren).map((slotName) => {
       const newVdom = splittedNewChildren[slotName];
+
+      if (shouldDeferProjection(slotMaps, slotName, newVdom)) {
+        removeParkedTemplate(staticCtx, slotMaps, slotName);
+        return;
+      }
+
       const slotCtx = getSlotCtx(
         staticCtx,
         slotMaps,
@@ -828,6 +870,12 @@ export const createElm = (
       const splittedNewChildren = splitChildren(children);
       for (const slotName in splittedNewChildren) {
         const newVnode = splittedNewChildren[slotName];
+
+        if (shouldDeferProjection(slotMap, slotName, newVnode)) {
+          removeParkedTemplate(staticCtx, slotMap, slotName);
+          continue;
+        }
+
         const slotCtx = getSlotCtx(staticCtx, slotMap, elCtx, slotName, staticCtx.$containerState$);
         const slotRctx = pushRenderContext(rCtx);
         const slotEl = slotCtx.$element$ as VirtualElement;

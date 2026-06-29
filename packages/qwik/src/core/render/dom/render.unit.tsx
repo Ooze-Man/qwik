@@ -391,6 +391,62 @@ test('should project un-named slot component', async () => {
   );
 });
 
+test('should not run projected component tasks until the slot is rendered', async () => {
+  const fixture = new ElementFixture();
+  const calls: string[] = [];
+
+  const Child = component$(() => {
+    useTask$(() => {
+      calls.push('child task');
+    });
+
+    useVisibleTask$(() => {
+      calls.push('child visible');
+    });
+
+    return <div>Child</div>;
+  });
+
+  const Layout = component$((props: { loading: boolean }) => {
+    if (props.loading) {
+      return <div>Loading...</div>;
+    }
+
+    return <Slot />;
+  });
+
+  const App = component$(() => {
+    const loading = useSignal(true);
+
+    return (
+      <div>
+        <button onClick$={() => (loading.value = false)}>show</button>
+        <Layout loading={loading.value}>
+          <Child />
+        </Layout>
+      </div>
+    );
+  });
+
+  await render(fixture.host, <App />);
+
+  await expectRendered(
+    fixture,
+    `
+      <div>
+        <button>show</button>
+        <div>Loading...</div>
+      </div>`
+  );
+
+  assert.deepEqual(calls, []);
+
+  await trigger(fixture.host, 'button', 'click');
+
+  await expectRendered(fixture, `<div><button>show</button><div>Child</div></div>`);
+  assert.deepEqual(calls, ['child task', 'child visible']);
+});
+
 test('should render host events on the first element', async () => {
   const fixture = new ElementFixture();
 
